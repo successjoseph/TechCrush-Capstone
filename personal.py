@@ -28,8 +28,22 @@ html, body, [data-testid="stAppViewContainer"] {
         radial-gradient(ellipse 80% 50% at 50% -10%, rgba(52,120,70,0.18) 0%, transparent 60%),
         radial-gradient(ellipse 50% 40% at 80% 80%, rgba(30,80,45,0.12) 0%, transparent 60%);
 }
-[data-testid="stHeader"], [data-testid="stToolbar"],
-footer, #MainMenu { display: none !important; }
+
+/* ── Hiding Elements Safely ── */
+/* Keep the stToolbar alive so the toggle button renders, but hide its unwanted siblings */
+
+[data-testid="stAppDeployButton"], /* Hides the "Deploy" text/button */
+[data-testid="stMainMenu"],        /* Hides the 3-dot menu */
+[data-testid="stToolbarActions"],  /* Hides the empty action container */
+footer { 
+    display: none !important; 
+}
+
+/* Make the header and toolbar containers completely transparent */
+[data-testid="stHeader"], 
+[data-testid="stToolbar"] {
+    background-color: transparent !important;
+}
 
 /* ── Sidebar ── */
 [data-testid="stSidebar"] {
@@ -53,6 +67,30 @@ footer, #MainMenu { display: none !important; }
     background: rgba(94,207,122,0.12) !important;
     color: #5ecf7a !important;
     font-weight: 600 !important;
+}
+            
+/* ── Force Sidebar Toggle Visibility ── */
+[data-testid="collapsedControl"], 
+[data-testid="stSidebarCollapsedControl"] {
+    display: flex !important;
+    z-index: 999999 !important;
+    background-color: transparent !important;
+    transition: background-color 0.3s ease !important;
+}
+
+/* Color the SVG icon so it doesn't blend into the dark background */
+[data-testid="collapsedControl"] svg, 
+[data-testid="stSidebarCollapsedControl"] svg, 
+[data-testid="stHeader"] svg {
+    color: #5ecf7a !important;
+    fill: #5ecf7a !important;
+}
+
+/* Add a slight hover effect to the toggle */
+[data-testid="collapsedControl"]:hover, 
+[data-testid="stSidebarCollapsedControl"]:hover {
+    background-color: rgba(94, 207, 122, 0.1) !important;
+    border-radius: 8px;
 }
 
 /* ── Typography ── */
@@ -751,18 +789,17 @@ elif page == "📊  Dataset":
                 text_color = "#e87c5a"
 
             cards_html += f"""
-            <div style="background:{badge_color};border:1px solid {border_color};border-radius:10px;
-                        padding:0.7rem 1rem;margin-bottom:0.5rem;display:flex;align-items:center;">
-                {dot}
-                <span style="font-size:0.85rem;color:{text_color};font-weight:500;">{cond}</span>
-            </div>"""
+<div style="background:{badge_color};border:1px solid {border_color};border-radius:10px;padding:0.7rem 1rem;margin-bottom:0.5rem;display:flex;align-items:center;">
+{dot}
+<span style="font-size:0.85rem;color:{text_color};font-weight:500;">{cond}</span>
+</div>"""
 
         st.markdown(f"""
-        <div class="glass-card-muted">
-            <div class="card-label">{selected_crop} · {len(conditions)} class{'es' if len(conditions) > 1 else ''}</div>
-            {cards_html}
-        </div>
-        """, unsafe_allow_html=True)
+<div class="glass-card-muted">
+<div class="card-label">{selected_crop} · {len(conditions)} class{'es' if len(conditions) > 1 else ''}</div>
+{cards_html}
+</div>
+""", unsafe_allow_html=True)
 
     # Data cleaning note
     st.markdown('<div class="section-title" style="margin-top:2rem;">Data Cleaning</div>', unsafe_allow_html=True)
@@ -969,38 +1006,38 @@ elif page == "📈  Training Results":
         val_a = TRAINING_HISTORY['val_accuracy'][i]
         highlight = " opacity:1;" if (i + 1) == best_epoch else " opacity:0.7;"
         acc_html += f"""
-        <div style="margin-bottom:0.5rem;{highlight}">
-            <div class="epoch-row">
-                <span class="epoch-label">{i+1}</span>
-                <div class="epoch-bar-bg">
-                    <div class="epoch-bar-fill" style="width:{train_a*100:.1f}%;background:linear-gradient(90deg,#1a6b30,#2a8a45);"></div>
-                </div>
-                <span class="epoch-val">{train_a*100:.1f}%</span>
-            </div>
-            <div class="epoch-row" style="margin-top:-0.1rem;">
-                <span class="epoch-label"></span>
-                <div class="epoch-bar-bg">
-                    <div class="epoch-bar-fill" style="width:{val_a*100:.1f}%;background:linear-gradient(90deg,#2a7a6a,#5ecfb0);"></div>
-                </div>
-                <span class="epoch-val" style="color:#5ecfb0;">{val_a*100:.1f}%</span>
-            </div>
-        </div>"""
+<div style="margin-bottom:0.5rem;{highlight}">
+<div class="epoch-row">
+<span class="epoch-label">{i+1}</span>
+<div class="epoch-bar-bg">
+<div class="epoch-bar-fill" style="width:{train_a*100:.1f}%;background:linear-gradient(90deg,#1a6b30,#2a8a45);"></div>
+</div>
+<span class="epoch-val">{train_a*100:.1f}%</span>
+</div>
+<div class="epoch-row" style="margin-top:-0.1rem;">
+<span class="epoch-label"></span>
+<div class="epoch-bar-bg">
+<div class="epoch-bar-fill" style="width:{val_a*100:.1f}%;background:linear-gradient(90deg,#2a7a6a,#5ecfb0);"></div>
+</div>
+<span class="epoch-val" style="color:#5ecfb0;">{val_a*100:.1f}%</span>
+</div>
+</div>"""
 
     st.markdown(f"""
-    <div class="glass-card">
-        <div style="display:flex;gap:1.5rem;margin-bottom:1rem;">
-            <div style="display:flex;align-items:center;gap:0.4rem;">
-                <div style="width:12px;height:4px;border-radius:2px;background:#2a8a45;"></div>
-                <span style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#7a9982;letter-spacing:0.08em;">TRAINING</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:0.4rem;">
-                <div style="width:12px;height:4px;border-radius:2px;background:#5ecfb0;"></div>
-                <span style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#7a9982;letter-spacing:0.08em;">VALIDATION</span>
-            </div>
-        </div>
-        {acc_html}
-    </div>
-    """, unsafe_allow_html=True)
+<div class="glass-card">
+<div style="display:flex;gap:1.5rem;margin-bottom:1rem;">
+<div style="display:flex;align-items:center;gap:0.4rem;">
+<div style="width:12px;height:4px;border-radius:2px;background:#2a8a45;"></div>
+<span style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#7a9982;letter-spacing:0.08em;">TRAINING</span>
+</div>
+<div style="display:flex;align-items:center;gap:0.4rem;">
+<div style="width:12px;height:4px;border-radius:2px;background:#5ecfb0;"></div>
+<span style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#7a9982;letter-spacing:0.08em;">VALIDATION</span>
+</div>
+</div>
+{acc_html}
+</div>
+""", unsafe_allow_html=True)
 
     # Loss chart
     st.markdown('<div class="section-title" style="margin-top:2rem;">Loss per Epoch</div>', unsafe_allow_html=True)
@@ -1013,38 +1050,38 @@ elif page == "📈  Training Results":
         val_l = TRAINING_HISTORY['val_loss'][i]
         highlight = " opacity:1;" if (i + 1) == best_epoch else " opacity:0.7;"
         loss_html += f"""
-        <div style="margin-bottom:0.5rem;{highlight}">
-            <div class="epoch-row">
-                <span class="epoch-label">{i+1}</span>
-                <div class="epoch-bar-bg">
-                    <div class="epoch-bar-fill" style="width:{(train_l/max_loss)*100:.1f}%;background:linear-gradient(90deg,#1a6b30,#2a8a45);"></div>
-                </div>
-                <span class="epoch-val">{train_l:.4f}</span>
-            </div>
-            <div class="epoch-row" style="margin-top:-0.1rem;">
-                <span class="epoch-label"></span>
-                <div class="epoch-bar-bg">
-                    <div class="epoch-bar-fill" style="width:{(val_l/max_loss)*100:.1f}%;background:linear-gradient(90deg,#2a7a6a,#5ecfb0);"></div>
-                </div>
-                <span class="epoch-val" style="color:#5ecfb0;">{val_l:.4f}</span>
-            </div>
-        </div>"""
+<div style="margin-bottom:0.5rem;{highlight}">
+<div class="epoch-row">
+<span class="epoch-label">{i+1}</span>
+<div class="epoch-bar-bg">
+<div class="epoch-bar-fill" style="width:{(train_l/max_loss)*100:.1f}%;background:linear-gradient(90deg,#1a6b30,#2a8a45);"></div>
+</div>
+<span class="epoch-val">{train_l:.4f}</span>
+</div>
+<div class="epoch-row" style="margin-top:-0.1rem;">
+<span class="epoch-label"></span>
+<div class="epoch-bar-bg">
+<div class="epoch-bar-fill" style="width:{(val_l/max_loss)*100:.1f}%;background:linear-gradient(90deg,#2a7a6a,#5ecfb0);"></div>
+</div>
+<span class="epoch-val" style="color:#5ecfb0;">{val_l:.4f}</span>
+</div>
+</div>"""
 
     st.markdown(f"""
-    <div class="glass-card">
-        <div style="display:flex;gap:1.5rem;margin-bottom:1rem;">
-            <div style="display:flex;align-items:center;gap:0.4rem;">
-                <div style="width:12px;height:4px;border-radius:2px;background:#2a8a45;"></div>
-                <span style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#7a9982;letter-spacing:0.08em;">TRAINING</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:0.4rem;">
-                <div style="width:12px;height:4px;border-radius:2px;background:#5ecfb0;"></div>
-                <span style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#7a9982;letter-spacing:0.08em;">VALIDATION</span>
-            </div>
-        </div>
-        {loss_html}
-    </div>
-    """, unsafe_allow_html=True)
+<div class="glass-card">
+<div style="display:flex;gap:1.5rem;margin-bottom:1rem;">
+<div style="display:flex;align-items:center;gap:0.4rem;">
+<div style="width:12px;height:4px;border-radius:2px;background:#2a8a45;"></div>
+<span style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#7a9982;letter-spacing:0.08em;">TRAINING</span>
+</div>
+<div style="display:flex;align-items:center;gap:0.4rem;">
+<div style="width:12px;height:4px;border-radius:2px;background:#5ecfb0;"></div>
+<span style="font-family:'DM Mono',monospace;font-size:0.58rem;color:#7a9982;letter-spacing:0.08em;">VALIDATION</span>
+</div>
+</div>
+{loss_html}
+</div>
+""", unsafe_allow_html=True)
 
     # Analysis
     st.markdown('<div class="section-title" style="margin-top:2rem;">Analysis</div>', unsafe_allow_html=True)
