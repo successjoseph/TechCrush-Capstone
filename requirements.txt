@@ -2,3 +2,7 @@ streamlit
 tensorflow
 numpy
 pillow
+
+#link to docx and ipynb files
+# https://docs.google.com/document/d/1E6DXpKHgfieampbmSONGyrptrpXj5Xovi_xfLPb1zTQ/edit?usp=sharing
+# https://colab.research.google.com/drive/1_J4D449sSNGQoZIPlOrKlS2-irhaUbzG?usp=sharing
